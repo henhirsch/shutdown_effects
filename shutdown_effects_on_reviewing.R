@@ -3,6 +3,7 @@ rm(list=ls())
 
 # load packages
 library(tidyverse)
+library(ivs)
 
 # import data
 crs_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/CR Data/CRs_number_length_duration_5.csv")
@@ -43,10 +44,23 @@ crs <- crs %>% arrange(enactment_date)
 reviews <- reviews %>% arrange(date_received)
 shutdowns <- shutdowns %>% arrange(date_funding_ended)
 
-# create interval data frames
+# create shutdown and cr interval data frames
 cr_intervals <- data.frame(
   interval = interval(crs$enactment_date, crs$expiration_date))
 shutdown_intervals <- data.frame(
   interval = interval(shutdowns$date_funding_ended, shutdowns$date_funding_restored))
 
-# find dates of overlap between these intervals
+# create all_dates_interval
+earliest_date <- min(shutdowns$date_funding_ended)
+all_dates_interval <- interval(earliest_date, Sys.Date())
+
+# create iv interval
+shutdowns <- shutdowns %>%
+  mutate(
+    iv_interval = iv(date_funding_ended, date_funding_restored))
+# ^ since end isn't inclusive [,) add +1 (day?) to date_funding_restored
+
+# find iv complements for shutdown iv intervals
+govt_open <- as.data.frame(iv_set_complement(shutdowns$iv_interval, lower = earliest_date, upper = Sys.Date()))
+colnames(govt_open) <- c("iv_interval")
+
