@@ -43,4 +43,10 @@ crs <- crs %>% arrange(enactment_date)
 reviews <- reviews %>% arrange(date_received)
 shutdowns <- shutdowns %>% arrange(date_funding_ended)
 
-# hello, this is a test
+# create interval data frames
+cr_intervals <- data.frame(
+  interval = interval(crs$enactment_date, crs$expiration_date))
+shutdown_intervals <- data.frame(
+  interval = interval(shutdowns$date_funding_ended, shutdowns$date_funding_restored))
+
+# find dates of overlap between these intervals
