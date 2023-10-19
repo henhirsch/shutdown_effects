@@ -65,12 +65,29 @@ shutdowns <- shutdowns %>%
 govt_open_iv_intervals <- as.data.frame(iv_set_complement(shutdowns$iv_interval, lower = earliest_date, upper = Sys.Date()))
 colnames(govt_open_iv_intervals) <- c("iv_interval")
 
-# Convert govt_open_iv_intervals to regular date intervals
+# create shutdown_iv_interval data frame
+shutdown_iv_intervals <- as.data.frame(shutdowns$iv_interval)
+colnames(shutdown_iv_intervals) <- c("iv_interval")
 
+# add govt_status column to both iv_interval data frame
+govt_open_iv_intervals <- govt_open_iv_intervals %>%
+  mutate(govt_status = factor("open", levels = c("open", "closed")))
+shutdown_iv_intervals <- shutdown_iv_intervals %>%
+  mutate(govt_status = factor("closed", levels = c("open", "closed")))
 
+# create standard start and end date columns from iv_interval columns
+govt_open_iv_intervals <- govt_open_iv_intervals %>%
+  mutate(
+    start_date = iv_start(iv_interval),
+    end_date = (iv_end(iv_interval) - days(1))
+  )
 
+shutdown_iv_intervals <- shutdown_iv_intervals %>%
+  mutate(
+    start_date = iv_start(iv_interval),
+    end_date = (iv_end(iv_interval) - days(1))
+  )
 
-
-
-
-
+# create govt_open and govt_closed data frames
+govt_open <- as.data.frame(govt_open_iv_intervals[ , c("govt_status", "start_date", "end_date")])
+govt_closed <- as.data.frame(shutdown_iv_intervals[ , c("govt_status", "start_date", "end_date")])
