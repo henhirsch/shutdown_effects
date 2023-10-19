@@ -98,4 +98,12 @@ govt_open <- govt_open %>%
 govt_closed <- govt_closed %>%
   mutate(date_interval = interval(start_date, end_date))
 
+# combine govt_open and govt_closed into one data frame
+govt <- bind_rows(govt_closed, govt_open)
+
+# arrange rows according to date_interval column
+govt <- govt %>%
+  arrange(date_interval)
+
+
 
