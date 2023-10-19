@@ -99,11 +99,17 @@ govt_closed <- govt_closed %>%
   mutate(date_interval = interval(start_date, end_date))
 
 # combine govt_open and govt_closed into one data frame
-govt <- bind_rows(govt_closed, govt_open)
+govt_behavior <- bind_rows(govt_closed, govt_open)
 
 # arrange rows according to date_interval column
-govt <- govt %>%
+govt_behavior <- govt_behavior %>%
   arrange(date_interval)
+
+# create column that indicates the number of days in each interval
+govt_behavior$days_in_interval <- time_length(govt_behavior$date_interval, unit = "days")
+# ^ should 1 day be subtracted? See shutdown webpage: "*Days are counted from the first day to the last full day that the government was shut down. The date the Public Law was signed is not included because that law opened the government when it went into effect."
+
+
 
 
 
