@@ -54,13 +54,23 @@ shutdown_intervals <- data.frame(
 earliest_date <- min(shutdowns$date_funding_ended)
 all_dates_interval <- interval(earliest_date, Sys.Date())
 
-# create iv interval
+# create iv intervals
 shutdowns <- shutdowns %>%
-  mutate(
-    iv_interval = iv(date_funding_ended, date_funding_restored))
-# ^ since end isn't inclusive [,) add +1 (day?) to date_funding_restored
+   mutate(
+     date_funding_restored_plus1 = date_funding_restored + days(1),
+     iv_interval = iv(date_funding_ended, date_funding_restored_plus1)
+   )
 
-# find iv complements for shutdown iv intervals
-govt_open <- as.data.frame(iv_set_complement(shutdowns$iv_interval, lower = earliest_date, upper = Sys.Date()))
-colnames(govt_open) <- c("iv_interval")
+# create govt_open_iv_intervals using iv complements
+govt_open_iv_intervals <- as.data.frame(iv_set_complement(shutdowns$iv_interval, lower = earliest_date, upper = Sys.Date()))
+colnames(govt_open_iv_intervals) <- c("iv_interval")
+
+# Convert govt_open_iv_intervals to regular date intervals
+
+
+
+
+
+
+
 
