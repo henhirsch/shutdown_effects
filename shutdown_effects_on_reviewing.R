@@ -91,3 +91,11 @@ shutdown_iv_intervals <- shutdown_iv_intervals %>%
 # create govt_open and govt_closed data frames
 govt_open <- as.data.frame(govt_open_iv_intervals[ , c("govt_status", "start_date", "end_date")])
 govt_closed <- as.data.frame(shutdown_iv_intervals[ , c("govt_status", "start_date", "end_date")])
+
+# add date interval columns to govt_open and got_closed
+govt_open <- govt_open %>%
+  mutate(date_interval = interval(start_date, end_date))
+govt_closed <- govt_closed %>%
+  mutate(date_interval = interval(start_date, end_date))
+
+
