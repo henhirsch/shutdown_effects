@@ -35,7 +35,7 @@ reviews_0$major <- as.factor(reviews_0$major)
 shutdowns_0$shutdown_procedures_followed <- as.factor(shutdowns_0$shutdown_procedures_followed)
 
 # remove columns
-crs <- crs[ , c("enactment_date", "expiration_date")]
+crs <- crs[ , c("enactment_date", "expiration_date", "duration_in_days")]
 reviews <- reviews_0[ , c("agency_code", "stage", "ES", "date_received", "legal_deadline", "date_completed", "decision", "major")]
 shutdowns <- shutdowns_0[ , c("date_funding_ended", "date_funding_restored", "shutdown_procedures_followed")]
 
@@ -43,6 +43,8 @@ shutdowns <- shutdowns_0[ , c("date_funding_ended", "date_funding_restored", "sh
 crs <- crs %>% arrange(enactment_date)
 reviews <- reviews %>% arrange(date_received)
 shutdowns <- shutdowns %>% arrange(date_funding_ended)
+
+# create 
 
 # create shutdown and cr interval data frames
 cr_intervals <- data.frame(
@@ -105,11 +107,24 @@ govt_behavior <- bind_rows(govt_closed, govt_open)
 govt_behavior <- govt_behavior %>%
   arrange(date_interval)
 
+# create date_interval
+crs <- crs %>%
+  mutate(
+    date_interval = interval(enactment_date, expiration_date))
+
+reviews <- reviews %>%
+  mutate(
+    date_interval = interval(date_received, date_completed))
+
 # create column that indicates the number of days in each interval
 govt_behavior$days_in_interval <- time_length(govt_behavior$date_interval, unit = "days")
+reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 # ^ should 1 day be subtracted? See shutdown webpage: "*Days are counted from the first day to the last full day that the government was shut down. The date the Public Law was signed is not included because that law opened the government when it went into effect."
 
+# figure out how many reviews were completed during each interval
+# use %within% from lubridate? or use data.table to do non-equi update join?
 
-
-
-
+# create start date for awareness window
+govt_behavior <- govt_behavior %>%
+  mutate(
+    start_awareness = start_date - 7)
