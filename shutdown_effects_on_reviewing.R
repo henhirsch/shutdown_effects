@@ -4,6 +4,7 @@ rm(list=ls())
 # load packages
 library(tidyverse)
 library(ivs)
+library(zoo)
 
 # import data
 crs_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/CR Data/CRs_number_length_duration_5.csv")
@@ -12,9 +13,14 @@ reviews_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Cen
 
 shutdowns_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Shutdown Data/shutdown_2.csv")
 
+trends_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Google Trends Data/all_google_data.csv", skip = 1)
+
 # remove rows with NA values
 crs <- crs_0[complete.cases(crs_0), ]
 shutdowns_0 <- shutdowns_0[complete.cases(shutdowns_0), ]
+
+# modify column names
+colnames(trends_0) <- c("month_start", "intensity")
 
 # format columns as.Date (initially: crs_0 in MM/DD/YY, reviews_0 in YYYY-MM-DD [default], shutdowns_0 in DD-Mon-YY)
 crs$enactment_date <- as.Date(crs$enactment_date, format = "%m/%d/%y")
@@ -24,6 +30,7 @@ reviews_0$date_completed <- as.Date(reviews_0$date_completed)
 reviews_0$date_published <- as.Date(reviews_0$date_published)
 shutdowns_0$date_funding_ended <- as.Date(shutdowns_0$date_funding_ended, format = "%d-%b-%y")
 shutdowns_0$date_funding_restored <- as.Date(shutdowns_0$date_funding_restored, format = "%d-%b-%y")
+trends_0$month_start <- as.Date(as.yearmon(trends_0$month_start))
 
 # format columns as.factor
 reviews_0$agency_code <- as.factor(reviews_0$agency_code)
@@ -44,7 +51,10 @@ crs <- crs %>% arrange(enactment_date)
 reviews <- reviews %>% arrange(date_received)
 shutdowns <- shutdowns %>% arrange(date_funding_ended)
 
-# create 
+# create month_end column for trends data frame
+trends <- trends_0
+trends <- trends %>%
+  mutate(month_end = ceiling_date(month_start, "month") - days(1))
 
 # create shutdown and cr interval data frames
 cr_intervals <- data.frame(
@@ -94,11 +104,13 @@ shutdown_iv_intervals <- shutdown_iv_intervals %>%
 govt_open <- as.data.frame(govt_open_iv_intervals[ , c("govt_status", "start_date", "end_date")])
 govt_closed <- as.data.frame(shutdown_iv_intervals[ , c("govt_status", "start_date", "end_date")])
 
-# add date interval columns to govt_open and got_closed
+# add date interval columns to govt_open, got_closed, and trends
 govt_open <- govt_open %>%
   mutate(date_interval = interval(start_date, end_date))
 govt_closed <- govt_closed %>%
   mutate(date_interval = interval(start_date, end_date))
+trends <- trends %>% 
+  mutate(date_interval = interval(month_start, month_end))
 
 # combine govt_open and govt_closed into one data frame
 govt_behavior <- bind_rows(govt_closed, govt_open)
@@ -124,7 +136,7 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 # figure out how many reviews were completed during each interval
 # use %within% from lubridate? or use data.table to do non-equi update join?
 
-# create start date for awareness window
-govt_behavior <- govt_behavior %>%
-  mutate(
-    start_awareness = start_date - 7)
+# # create start date for awareness window
+# govt_behavior <- govt_behavior %>%
+#   mutate(
+#     start_awareness = start_date - 7)
