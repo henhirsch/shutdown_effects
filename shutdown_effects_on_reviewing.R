@@ -112,6 +112,15 @@ govt_closed <- govt_closed %>%
 trends <- trends %>% 
   mutate(date_interval = interval(month_start, month_end))
 
+# convert trends intensity variable to dummy
+trends <- trends %>% 
+  mutate(todummy = as.numeric(intensity))
+
+trends$todummy[is.na(trends$todummy)] <- 0
+
+trends <- trends %>%
+   mutate(aware = ifelse(todummy == 0, 0, 1))
+
 # combine govt_open and govt_closed into one data frame
 govt_behavior <- bind_rows(govt_closed, govt_open)
 
