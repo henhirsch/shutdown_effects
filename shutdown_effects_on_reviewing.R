@@ -13,7 +13,7 @@ reviews_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Cen
 
 shutdowns_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Shutdown Data/shutdown_2.csv")
 
-trends_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Google Trends Data/all_google_data.csv", skip = 1)
+trends_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Google Trends Data/all_google_data(normalized).csv", skip = 1)
 
 # remove rows with NA values
 crs <- crs_0[complete.cases(crs_0), ]
@@ -149,3 +149,5 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 # govt_behavior <- govt_behavior %>%
 #   mutate(
 #     start_awareness = start_date - 7)
+
+
