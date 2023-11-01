@@ -15,12 +15,15 @@ shutdowns_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies C
 
 trends_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Google Trends Data/all_google_data(normalized).csv", skip = 1)
 
+complete_daily_0 <- read.csv("/Users/henryhirsch/Henry/Work/2023/Regulatory Studies Center/projects/5. Effects of Govt. Shutdowns on Rule Reviewing/data sets/Google Trends Data/complete_daily_data.csv")
+
 # remove rows with NA values
 crs <- crs_0[complete.cases(crs_0), ]
 shutdowns_0 <- shutdowns_0[complete.cases(shutdowns_0), ]
 
 # modify column names
 colnames(trends_0) <- c("month_start", "intensity")
+colnames(complete_daily_0) <- c("x", "date", "value")
 
 # format columns as.Date (initially: crs_0 in MM/DD/YY, reviews_0 in YYYY-MM-DD [default], shutdowns_0 in DD-Mon-YY)
 crs$enactment_date <- as.Date(crs$enactment_date, format = "%m/%d/%y")
@@ -31,6 +34,7 @@ reviews_0$date_published <- as.Date(reviews_0$date_published)
 shutdowns_0$date_funding_ended <- as.Date(shutdowns_0$date_funding_ended, format = "%d-%b-%y")
 shutdowns_0$date_funding_restored <- as.Date(shutdowns_0$date_funding_restored, format = "%d-%b-%y")
 trends_0$month_start <- as.Date(as.yearmon(trends_0$month_start))
+complete_daily_0$date <- as.Date(complete_daily_0$date)
 
 # format columns as.factor
 reviews_0$agency_code <- as.factor(reviews_0$agency_code)
@@ -45,6 +49,7 @@ shutdowns_0$shutdown_procedures_followed <- as.factor(shutdowns_0$shutdown_proce
 crs <- crs[ , c("enactment_date", "expiration_date", "duration_in_days")]
 reviews <- reviews_0[ , c("agency_code", "stage", "ES", "date_received", "legal_deadline", "date_completed", "decision", "major")]
 shutdowns <- shutdowns_0[ , c("date_funding_ended", "date_funding_restored", "shutdown_procedures_followed")]
+complete_daily <- complete_daily_0[ , c("date", "value")]
 
 # arrange data frames by date
 crs <- crs %>% arrange(enactment_date)
@@ -150,4 +155,15 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 #   mutate(
 #     start_awareness = start_date - 7)
 
+# plot daily google trends data
+line1 <- ggplot(complete_daily, aes(x = date, y = value)) + 
+  geom_line(color = "red") + 
+  labs(title="Google Searches for 'Government Shutdown'",
+       x="Date",
+       y="Search Prevalence") +
+  theme_minimal()
 
+line1
+
+# summary statistics for complete_daily
+summary(complete_daily$value)
