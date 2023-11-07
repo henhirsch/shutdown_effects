@@ -11,5 +11,5 @@ data <- ts_gtrends(
   geo     = "US"
 )
 
-data_consistent <- ts_gtrends_mwd(c("government shutdown"),
+data_consistent <- ts_gtrends_mw(c("government shutdown"),
                                   geo = "US")

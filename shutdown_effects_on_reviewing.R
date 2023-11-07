@@ -156,14 +156,32 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 #     start_awareness = start_date - 7)
 
 # plot daily google trends data
-line1 <- ggplot(complete_daily, aes(x = date, y = value)) + 
-  geom_line(color = "red") + 
-  labs(title="Google Searches for 'Government Shutdown'",
-       x="Date",
-       y="Search Prevalence") +
-  theme_minimal()
-
-line1
+# line1 <- ggplot(complete_daily, aes(x = date, y = value)) +
+#   geom_line(color = "red") +
+#   labs(title="Google Searches for 'Government Shutdown'",
+#        x="Date",
+#        y="Search Prevalence") +
+#   theme_minimal()
+# 
+# line1
 
 # summary statistics for complete_daily
 summary(complete_daily$value)
+
+# find 90th percentile value
+p90 <- quantile(complete_daily$value, probs = 0.90)
+
+# add p90 color column
+complete_daily <- complete_daily %>%
+  mutate(percentile = ifelse(value > p90, "above p90", "below p90"))
+
+# plot line graph
+line1 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
+  geom_line(aes(color = percentile)) +
+  scale_color_manual(values = c("below p90" = "red", "above p90" = "green")) +
+  labs(title = "Google Searches for 'Government Shutdown'",
+       x = "Date",
+       y = "Search Prevalence") +
+  theme_minimal() +
+  theme(legend.position = "none")
+line1
