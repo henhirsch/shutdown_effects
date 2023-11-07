@@ -168,20 +168,47 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 # summary statistics for complete_daily
 summary(complete_daily$value)
 
-# find 90th percentile value
-p90 <- quantile(complete_daily$value, probs = 0.90)
+# find percentile value
+pcent <- quantile(complete_daily$value, probs = 0.95)
 
-# add p90 color column
+# add color column (calibrate based off of percentile or 2SDs (value > 2))
 complete_daily <- complete_daily %>%
-  mutate(percentile = ifelse(value > p90, "above p90", "below p90"))
+  mutate(percentile_cutoff = ifelse(value > pcent, "above", "below"))
 
-# plot line graph
 line1 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
-  geom_line(aes(color = percentile)) +
-  scale_color_manual(values = c("below p90" = "red", "above p90" = "green")) +
+  geom_line(aes(color = percentile_cutoff)) +
+  scale_color_manual(values = c("below" = "red", "above" = "green")) +
   labs(title = "Google Searches for 'Government Shutdown'",
        x = "Date",
        y = "Search Prevalence") +
-  theme_minimal() +
-  theme(legend.position = "none")
-line1
+  theme_minimal()
+
+line
+
+# add columns to complete_daily 
+complete_daily <- complete_daily %>%
+  mutate(crs_start = if_else(date %in% crs$enactment_date, TRUE, FALSE))
+
+complete_daily <- complete_daily %>%
+  mutate(crs_end = if_else(date %in% crs$expiration_date, TRUE, FALSE))
+
+# Filter the data to only include rows where add_vline is TRUE
+vline_data <- complete_daily %>% filter(crs_end)
+
+# plot line graph
+line2 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
+  geom_vline(data = vline_data, aes(xintercept = as.Date(date)), color = "purple", linetype = "dotted") +
+  geom_line(aes(color = percentile_cutoff)) +
+  scale_color_manual(values = c("below" = "red", "above" = "green")) +
+  labs(title = "Google Searches for 'Government Shutdown'",
+       x = "Date",
+       y = "Search Prevalence") +
+  theme_minimal()
+
+line2
+
+
+
+
+
+
