@@ -182,8 +182,7 @@ line1 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
        x = "Date",
        y = "Search Prevalence") +
   theme_minimal()
-
-line
+line1
 
 # add columns to complete_daily 
 complete_daily <- complete_daily %>%
@@ -192,23 +191,26 @@ complete_daily <- complete_daily %>%
 complete_daily <- complete_daily %>%
   mutate(crs_end = if_else(date %in% crs$expiration_date, TRUE, FALSE))
 
-# Filter the data to only include rows where add_vline is TRUE
+# create vertical line data frame
 vline_data <- complete_daily %>% filter(crs_end)
 
-# plot line graph
-line2 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
-  geom_vline(data = vline_data, aes(xintercept = as.Date(date)), color = "purple", linetype = "dotted") +
-  geom_line(aes(color = percentile_cutoff)) +
+# plot dot plot
+dot1 <- ggplot(complete_daily, aes(x = date, y = value)) +
+  geom_point(size = 1, aes(color = percentile_cutoff)) +
   scale_color_manual(values = c("below" = "red", "above" = "green")) +
   labs(title = "Google Searches for 'Government Shutdown'",
        x = "Date",
        y = "Search Prevalence") +
   theme_minimal()
+dot1
 
-line2
-
-
-
-
-
-
+# plot dot plot
+dot2 <- ggplot(complete_daily, aes(x = date, y = value)) +
+  geom_vline(data = vline_data, aes(xintercept = as.Date(date)), color = "purple", linetype = "dotted") +
+  geom_point(size = 1, aes(color = percentile_cutoff)) +
+  scale_color_manual(values = c("below" = "red", "above" = "green")) +
+  labs(title = "Google Searches for 'Government Shutdown'",
+       x = "Date",
+       y = "Search Prevalence") +
+  theme_minimal()
+dot2
