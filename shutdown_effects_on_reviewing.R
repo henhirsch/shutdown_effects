@@ -155,16 +155,6 @@ reviews$days_in_interval <- time_length(reviews$date_interval, unit = "days")
 #   mutate(
 #     start_awareness = start_date - 7)
 
-# plot daily google trends data
-# line1 <- ggplot(complete_daily, aes(x = date, y = value)) +
-#   geom_line(color = "red") +
-#   labs(title="Google Searches for 'Government Shutdown'",
-#        x="Date",
-#        y="Search Prevalence") +
-#   theme_minimal()
-# 
-# line1
-
 # summary statistics for complete_daily
 summary(complete_daily$value)
 
@@ -174,15 +164,6 @@ pcent <- quantile(complete_daily$value, probs = 0.95)
 # add color column (calibrate based off of percentile or 2SDs (value > 2))
 complete_daily <- complete_daily %>%
   mutate(percentile_cutoff = ifelse(value > pcent, "above", "below"))
-
-line1 <- ggplot(complete_daily, aes(x = date, y = value, group = 1)) +
-  geom_line(aes(color = percentile_cutoff)) +
-  scale_color_manual(values = c("below" = "red", "above" = "green")) +
-  labs(title = "Google Searches for 'Government Shutdown'",
-       x = "Date",
-       y = "Search Prevalence") +
-  theme_minimal()
-line1
 
 # add columns to complete_daily 
 complete_daily <- complete_daily %>%
@@ -214,3 +195,17 @@ dot2 <- ggplot(complete_daily, aes(x = date, y = value)) +
        y = "Search Prevalence") +
   theme_minimal()
 dot2
+
+# recent reviews
+# recent_review <- reviews %>% filter(date_completed >= "2006-01-01")
+
+# plot dot plot
+# reviews$y_value <- 1
+# dot3 <- ggplot(reviews, aes(x = date_completed, y = y_value)) +
+#   geom_vline(data = vline_data, aes(xintercept = as.Date(date)), color = "purple", linetype = "dotted") +
+#   geom_point(size = 0.5, aes(color = "black")) +
+#   labs(title = "Google Searches for 'Government Shutdown'",
+#        x = "Date",
+#        y = "Search Prevalence") +
+#   theme_minimal()
+# dot3
